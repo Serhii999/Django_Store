@@ -1,0 +1,131 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <h1 style=" background-color: aqua" >My modul Store</h1>
+  {% if request.user.is_authenticated and not request.user.is_superuser %}
+        <a href="{% url 'logout' %}">Logout</a>
+      <br>
+      <br>
+        <a href="{% url 'purchase_list' %}"> My purchases</a>
+      <br>
+      <br>
+
+      <span style="background-color: lightblue">User: {{ request.user.username }} </span>
+      <br>
+
+        <span style="background-color: yellow"> Your wallet: {{ request.user.UserWallet }} </span>
+
+      {% elif request.user.is_superuser %}
+          <a href="{% url 'logout' %}">Logout</a>
+          <br>
+      <br>
+         <span style="background-color: lightblue">Admin: {{ request.user.username }} </span>
+      <br>
+      <br>
+          <a href="{% url 'returns' %}">To returns </a>
+
+    <br>
+
+    <br>
+      <div>
+
+       {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <br>
+        <a href="{% url 'register' %}">Registration</a>
+        <br>
+        <br>
+
+    {% endif %}
+
+
+
+ {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+
+    <li >{{ message }}
+    </li>
+
+
+    {% endfor %}
+</ul>
+{% endif %}
+<br>
+<div>
+<br>
+    {% for obj in object_list %}
+    <div>
+
+
+        {{ obj.title}} <br>
+        {{ obj.description }} <br>
+        Quaintity at warehouse: {{obj.quantity}}<br>
+
+     {% if obj.picture %}
+        <img src="{{ obj.picture.url }}" width="100" height="100">
+
+{% endif %}
+    <br>
+    Price: {{ obj.price }}
+
+{% if request.user.is_authenticated and not request.user.is_superuser %}
+
+
+
+  <form  method="post" action="{% url 'purchase' obj.pk %}">
+    {% csrf_token %}
+    {{purchase_form }}
+    <input type="hidden" name="product_id" value="{{ obj.id }}"><input type="hidden" name="customer_id" value="{{ request.user.id}}">
+    <input type="submit" value="Buy">
+       <br>
+
+</form>
+
+    {% endif %}
+
+    <br>
+    {% if request.user.is_superuser %}
+    <form method="post" action="{% url 'update' obj.pk %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ create_form }}
+    <input type="submit" value="Update">
+</form>
+    {% endif %}
+    <br>
+    <br>
+    <br>
+    <br>
+    </div>
+    {% endfor %}
+
+
+
+
+{% if request.user.is_superuser %}
+  <form method="post" action="{% url 'snus_create' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ create_form }}
+    <input type="submit" value="Create">
+</form>
+{% endif %}
+<br>
+<br>
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+        </div>
+{% endblock %}

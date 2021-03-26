@@ -1,0 +1,48 @@
+{% extends 'main.html' %}
+{% block content %}
+    <span><h1 style="background-color: aqua">List of returns:</h1></span>
+    <a href="{% url 'index' %}">To main page</a>
+ {% for obj in returnpurchase_list %}
+    <div>
+
+        Owner:{{ obj.purchase_return.customer }}<br>
+        Return:{{ obj.purchase_return.product}} <br>
+        Return quantity:{{ obj.purchase_return.quantity}} <br>
+    Return time: {{ obj.time_of_return }} <br>
+<form method="post" action="{% url 'decline_return' obj.pk %}">
+    {% csrf_token %}
+    <p>Are you sure you want to delete "{{ obj.purchase_return }}"?</p>
+    <input type="submit" value="Decline">
+</form>
+
+   <form method="post" action="{% url 'accept_return' obj.purchase_return.pk %}">
+                            {% csrf_token %}
+
+
+                            <input type="submit" value="Return">
+                        </form>
+    </div>
+     <br>
+
+
+ {% endfor %}
+    <div class="pagination">
+    <span class="step-links" style="background-color: aqua">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+        </div>
+
+
+{% endblock %}
